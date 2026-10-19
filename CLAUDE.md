@@ -44,5 +44,6 @@
 - Decide whether to keep the old /work/<category> pages (only web-design has entries).
 
 ## Change log
+- 2026-10-19 — Fixed .gitignore (folder rules now root-anchored) so /events page + photos are in the repo.
 - 2026-10-19 — Put on GitHub (public, TheWebxite/thewebxite-site) and Vercel (project thewebxite-site, root site/, auto-deploy from main); secrets scan clean, raw/working folders excluded.
 - 2026-10-19 — Event pass: new blueprint site-map menu (replaces overlay; CTA in bar); new /work page (featured device stage, filterable index, 18 projects captured live) + 7 new case studies; clientele wall + vendors row on Home/Work/About/Services; About (manifesto, mission/vision halves); services index hero mosaic + premium service detail template (layer stack object, 4D blocks, work strip, p9 steps); Events filmstrip + Instagram embeds; Contact and News heroes. Backup at `site-backup-2026-10-19/`.
