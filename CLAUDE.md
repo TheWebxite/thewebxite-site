@@ -3,8 +3,10 @@
 ## Overview
 - TheWebxite's own site (owner: Xin). Next.js 16 + Tailwind 4 app in `site/`, built with the fe-web-design pipeline (`brand-brief.md`, `direction.md`, frozen `tokens.css`).
 - Brand: deep blue `#0325A8` ground, off-white `#F3F2F0` surface, light-blue accent `#8CDBFF`, ink `#071238`; Open Sauce One (self-hosted via @fontsource); W logo mark.
-- Shown locally for now (no deploy). Run: `cd site && npm run build && npm run start -- -p 4917`.
-- No git repo. Backups are folder copies: `site-backup-2026-10-19/` = the site before the 2026-10-19 event pass.
+- Repo (public): https://github.com/TheWebxite/thewebxite-site (repo root = this folder; git identity `TheWebxite <thewebxite.ai@gmail.com>`).
+- Vercel: project `thewebxite-site` (team thewebxiteai-6218s-projects), Root Directory `site`, every push to `main` deploys to production at https://thewebxite-site.vercel.app. The live thewebxite.com stays on the separate `thewebxite-revamp` project; don't move the domain unless Xin asks.
+- Local run: `cd site && npm run build && npm run start -- -p 4917`.
+- Not in the repo (see root `.gitignore`): qa*/, salvage/, site-backup-*/, .pdfpages/, current-site/, events/ (raw photos), *.pdf (Company Profile), *.xml (WordPress export), .env* except .env.example. Backup before the event pass: `site-backup-2026-10-19/`.
 
 ## Key files
 - `site/app/page.tsx` → Home (Hero, Gap, Stack, Range, ClienteleWall, Process, Circles, ContactBlock).
@@ -29,6 +31,7 @@
 - No banned/AI fonts; reduced motion respected; 375/768/1440 checked.
 
 ## Workflow notes
+- Team edits: push to `main` (or open a PR) on GitHub and Vercel redeploys. Teammates need to be added as collaborators on the repo (Settings → Collaborators) to push.
 - Captures: `node "<skill>/scripts/screenshot.mjs" <url> <dir> --settle 4000` (sandbox off), then `node scripts/portfolio-images.mjs`.
 - Layout: `node "<skill>/scripts/layout-check.mjs" <urls> --widths 375,768,1440`. Its sparse-screen metric ignores solid-colour blocks, so colour tiles read as "empty" to it; judge those by eye.
 - Unit tests: `npx vitest run` (41 pass). The Playwright e2e suite predates the 2026-10-19 redesign (menu, nav links) and has not been updated.
@@ -41,4 +44,5 @@
 - Decide whether to keep the old /work/<category> pages (only web-design has entries).
 
 ## Change log
+- 2026-10-19 — Put on GitHub (public, TheWebxite/thewebxite-site) and Vercel (project thewebxite-site, root site/, auto-deploy from main); secrets scan clean, raw/working folders excluded.
 - 2026-10-19 — Event pass: new blueprint site-map menu (replaces overlay; CTA in bar); new /work page (featured device stage, filterable index, 18 projects captured live) + 7 new case studies; clientele wall + vendors row on Home/Work/About/Services; About (manifesto, mission/vision halves); services index hero mosaic + premium service detail template (layer stack object, 4D blocks, work strip, p9 steps); Events filmstrip + Instagram embeds; Contact and News heroes. Backup at `site-backup-2026-10-19/`.
