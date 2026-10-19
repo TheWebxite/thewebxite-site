@@ -1,0 +1,637 @@
+@import "tailwindcss";
+@import "./tokens.css";
+@import "./blueprint.css";
+@import "./work.css";
+@import "./services.css";
+
+/* ---------------------------------------------------------------------------
+   Token -> Tailwind mapping.
+
+   Tailwind v4 has no tailwind.config.ts; the theme lives here. `@theme inline`
+   makes each utility emit `var(--token)` directly rather than re-declaring a
+   value, so Tailwind's stock palette is never reachable and every utility
+   resolves to a frozen token. Nothing is DEFINED here -- only referenced.
+--------------------------------------------------------------------------- */
+@theme inline {
+  --color-canvas: var(--color-canvas);
+  --color-surface: var(--color-surface);
+  --color-text: var(--color-text);
+  --color-text-muted: var(--color-text-muted);
+  --color-ink: var(--color-ink);
+  --color-ink-muted: var(--color-ink-muted);
+  --color-accent: var(--color-accent);
+  --color-accent-wash: var(--color-accent-wash);
+  --color-hairline: var(--color-hairline);
+  --color-hairline-ink: var(--color-hairline-ink);
+  --color-blue-mid: var(--color-blue-mid);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+
+  --text-xs: var(--step--1);
+  --text-base: var(--step-0);
+  --text-lead: var(--step-1);
+  --text-section: var(--step-2);
+  --text-major: var(--step-3);
+  --text-display: var(--step-4);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+
+  --ease-standard: var(--ease-standard);
+  --ease-exit: var(--ease-exit);
+}
+
+/* ---------------------------------------------------------------------------
+   BASE ELEMENT DEFAULTS — these MUST live in @layer base.
+
+   Unlayered CSS beats anything inside an @layer, whatever the specificity.
+   Tailwind v4 puts every utility in `@layer utilities`, so while these rules
+   sat unlayered they silently defeated utilities applied to the same elements:
+   every `mt-*` on a <p> resolved to 0, every `max-w-*` on a <p> lost to
+   `max-width: 68ch`, and every `leading-*` on a heading lost to 0.94. That is
+   what made headlines collide with the paragraphs beneath them.
+
+   Keep these in @layer base. A rule added outside it will break utilities
+   again, and nothing will report it.
+--------------------------------------------------------------------------- */
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--color-canvas);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    line-height: 1.65;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 0.94;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  p {
+    margin: 0;
+    max-width: 68ch;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  /* Visible focus is non-negotiable. */
+  :where(a, button, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+}
+
+/* The sticky bar's height. It is now DECLARED here and the header is set to
+   it, rather than this being a measurement of whatever padding happened to
+   add up to — the hero pulls itself up by exactly this value, so the two
+   must agree by construction, not by someone remembering to re-measure. */
+:root {
+  --nav-h: 5.5rem;
+}
+
+/* --- Layout primitives, ported verbatim from Stage A --------------------- */
+.section {
+  padding-block: var(--space-section);
+}
+.container {
+  margin-inline: auto;
+  max-width: 90rem;
+  padding-inline: var(--space-gutter);
+}
+.bleed {
+  margin-inline: calc(50% - 50vw);
+  width: 100vw;
+}
+.rule {
+  background: var(--color-hairline);
+  border: 0;
+  height: 1px;
+  margin: 0;
+}
+.grid12 {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--space-gutter);
+}
+.label {
+  font-size: var(--step--1);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+.on-surface {
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+.on-surface .label {
+  color: var(--color-ink-muted);
+}
+
+/* One text link, underlined on the offset -- never a second button. */
+.textlink {
+  display: inline-block;
+  text-decoration: none;
+  padding-block: 0.75rem;
+  min-height: 44px;
+  border-bottom: 1px solid var(--color-accent);
+  color: var(--color-accent);
+  transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.textlink:hover {
+  opacity: 0.72;
+}
+
+/* --- T1 reveal -------------------------------------------------------------
+   Reveal defaults to VISIBLE. Only once the client has marked the document
+   does it start hidden -- so with JS off, nothing is ever stuck at opacity 0. */
+.reveal {
+  opacity: 1;
+  transform: none;
+}
+
+.js .reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity var(--duration-base) var(--ease-standard),
+    transform var(--duration-base) var(--ease-standard);
+}
+
+.js .reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* --- Ecosystem layer active state ----------------------------------------
+   Instant, never transitioned: a fading highlight reads as lag.
+   This is one of the accent's three permitted uses on the page.          */
+.layer {
+  transition: none;
+}
+.layer.is-active .layer-name {
+  box-shadow: inset 0 -2px 0 0 var(--color-accent);
+}
+
+/* The old client marquee lived here and is gone with the carousel that
+   replaced it. Worth remembering why: it was UNLAYERED and declared
+   `.marquee { animation: marquee-track 46s linear infinite }`. A new
+   component reused the class name for a wrapper, inherited that
+   animation, and slid leftward forever with no reset — the "moving
+   lefter and lefter" the client reported. Unlayered CSS beats anything
+   in @layer regardless of specificity; this is the third time that has
+   bitten this project. */
+
+
+/* --- Responsive: asymmetric layouts collapse to one column --------------- */
+@media (max-width: 1023px) {
+  #stack-pin,
+  #stack-detail {
+    grid-column: 1 / -1 !important;
+  }
+  #stack-pin {
+    margin-bottom: var(--space-block);
+  }
+}
+
+@media (max-width: 767px) {
+  .grid12 {
+    grid-template-columns: 1fr;
+  }
+  .container > .grid12 > * {
+    grid-column: 1 / -1 !important;
+  }
+  .site-nav {
+    gap: 1.25rem 1.5rem;
+  }
+  .site-nav nav {
+    gap: 1.25rem;
+  }
+  .site-nav .nav-email {
+    margin-left: 0 !important;
+  }
+
+  /* numbered-steps-horizontal, mobile rule: rotate to vertical. */
+  .steps-rule {
+    display: none;
+  }
+  .steps {
+    grid-template-columns: 1fr !important;
+    gap: 2.5rem !important;
+    position: relative;
+    padding-left: 4.25rem !important;
+  }
+  .steps::before {
+    content: "";
+    position: absolute;
+    left: 1.4rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 1px;
+    background: var(--color-hairline);
+  }
+  .steps li {
+    position: relative;
+  }
+  .steps .num {
+    position: absolute;
+    left: -4.25rem !important;
+    top: -0.15rem;
+    margin-left: 0 !important;
+    padding-inline: 0 !important;
+    width: 2.8rem;
+    text-align: center;
+    font-size: var(--step-1);
+  }
+  .steps h3 {
+    margin-top: 0 !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   GROUNDS — and they live in @layer components FOR A REASON.
+
+   These classes set `position`, which means they compete with Tailwind's
+   positioning utilities. Unlayered CSS beats anything inside a layer whatever
+   the specificity, so while these sat unlayered `.ground-deep fixed` resolved
+   to position:relative — the menu overlay stopped being fixed and took 627px
+   of real layout above the hero. Same trap as the base element rules above.
+
+   @layer components places them BEFORE @layer utilities in the cascade, so a
+   utility on the same element now wins, which is what a utility is for.
+   Anything added here that a utility might also set must stay in this layer.
+--------------------------------------------------------------------------- */
+@layer components {
+  /* ---------------------------------------------------------------------------
+     The ecosystem diagram assembles itself once, in the order the argument
+     runs: a box, then the arrow leaving it drawing tail-to-head, then the
+     box it points at, round the loop, caption last.
+
+     WHY THIS IS CSS AND NOT INLINE STYLE. The first cut rendered the
+     diagram visible on the server and switched to animated styles after
+     mount. React does not reliably re-apply an inline `style` during
+     hydration, so some boxes kept the server's visible style and skipped
+     the sequence entirely — measured: beats 2, 4 and 6 sat at opacity 1
+     while beat 0 animated. Here the markup is IDENTICAL on both sides:
+     every element carries only its static --beat, and JavaScript flips one
+     attribute on the section. Nothing for hydration to disagree about.
+
+     With no JS the attribute is never set and the diagram is simply
+     visible, which is also what prefers-reduced-motion gets. */
+  [data-eco-stage="armed"] [data-eco="box"] {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  [data-eco-stage="armed"] [data-eco="caption"] { opacity: 0; }
+  [data-eco-stage="armed"] [data-eco="arrow"] path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+
+  [data-eco-stage="run"] [data-eco="box"],
+  [data-eco-stage="run"] [data-eco="caption"] {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.44s ease-out calc(var(--beat) * 0.34s),
+      transform 0.44s ease-out calc(var(--beat) * 0.34s);
+  }
+  [data-eco-stage="run"] [data-eco="arrow"] path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.42s linear calc(var(--beat) * 0.34s);
+  }
+
+  /* ---------------------------------------------------------------------------
+     THE BAR'S FIRST PAINT, BEFORE JAVASCRIPT HAS AN OPINION.
+     Whether the bar is transparent depends on whether the hero is behind
+     it, which only JS can observe — but the server's HTML paints first,
+     and it was painting brand blue across the top of the hero. Measured:
+     rgb(3,37,168) on a hero of rgb(17,44,139), a bright lid for as long
+     as hydration took. That is the flash.
+
+     So CSS decides the first paint, keyed on something it can see for
+     itself: does this page contain a hero at all. JS then takes over by
+     setting data-armed="true", from a layout effect, before paint. */
+  [data-nav][data-armed="false"] {
+    background: var(--color-canvas);
+    border-bottom-color: var(--color-hairline);
+  }
+  body:has([data-hero]) [data-nav][data-armed="false"] {
+    background: transparent;
+    border-bottom-color: transparent;
+  }
+  /* With scripting genuinely OFF nothing will ever arm the bar, and a
+     permanently transparent bar would put white links over the light
+     sections further down. Those readers keep the filled bar they had.
+     This does not match a page that is merely un-hydrated yet: scripting
+     is "enabled" from the moment scripts are allowed, run or not. */
+  @media (scripting: none) {
+    body:has([data-hero]) [data-nav][data-armed="false"] {
+      background: var(--color-canvas);
+      border-bottom-color: var(--color-hairline);
+    }
+  }
+
+  /* ---------------------------------------------------------------------------
+     The 3D mark drifts rather than sitting still. A still object in a
+     grid of cards reads as a picture that failed to load; a slow rise
+     and fall reads as an object.
+
+     It is a transform on a single element, so it composites on the GPU
+     and costs nothing per frame — no JavaScript, no rAF, no second
+     canvas. The pointer is not involved: that gesture belongs to the
+     home hero alone.
+
+     Seven seconds and 0.6rem of travel: slow enough that nothing drags
+     the eye off the words beside it, far enough to be unmistakably
+     moving if you look. The slight rotation keeps it from reading as a
+     lift animation on a card. */
+  @keyframes mark-drift {
+    0%, 100% { transform: translateY(-0.6rem) rotate(-0.6deg); }
+    50%      { transform: translateY(0.6rem) rotate(0.6deg); }
+  }
+
+  .mark-drift {
+    animation: mark-drift 7s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mark-drift { animation: none; }
+  }
+
+  /* ---------------------------------------------------------------------------
+     THE GROUNDS PAINT ON A PSEUDO-ELEMENT, NOT ON THE SECTION ITSELF.
+     A single fixed object (the 3D mark, see PageMark) travels the whole
+     home page and has to sit BETWEEN each section's background and that
+     section's text: behind the backgrounds it is invisible, in front of
+     the text it covers the page.
+
+     The whole arrangement rests on one rule of the painting order:
+     negative z-index positioned boxes are painted before in-flow text.
+     So everything below the words has its own rung and no component has
+     to be touched — the text paints above the lot by default, with no
+     wrapper, no z-index on any content, and nothing to keep in sync:
+
+         -4  the BODY's own grain (see below)
+         -3  the ground itself (these ::before rules)
+         -2  the flowing field, where a surface has one
+         -1  the travelling 3D mark, fixed to the viewport
+          0  every word on the page
+
+     Those numbers are the contract. The body carries .ground-grain too,
+     and its grain pseudo-element used to be hidden under <main>'s own
+     background: a block background paints after negative z-index boxes,
+     so main covered it. With the ground moved to -3 the body's grain at
+     -1 landed ON TOP of every page, darkening the whole site by about
+     three values — invisible to the eye, loud in a pixel test. Only the
+     body's copy moves down; a .ground-grain SECTION still needs its
+     grain above its own ground. The field was at -20 and the
+     mark at -1 when the grounds first moved to a pseudo-element, which
+     put the field BEHIND the ground it was supposed to flow across —
+     the hero rendered as a flat gradient. If a new layer is added here,
+     it goes on this ladder or it goes wrong.
+
+     ISOLATION HAD TO GO WITH IT. `isolation: isolate` on these grounds
+     made each section its own stacking context, which trapped the
+     pseudo-element inside the section and put the whole section above a
+     root-level fixed layer — the mark would have been invisible on
+     every one of them. It was there to keep the grain pseudo-element
+     from escaping behind the page; the grain is at -1 relative to the
+     same ::before at -2, so the ordering it was protecting still holds.
+
+     This is the mechanism that broke once before (an unlayered
+     `.ground-deep { position: relative }` beat a Tailwind `fixed` and
+     took 627px of layout). Anything changed here gets measured, not
+     reasoned about. */
+  /* Stopped, it is still a legible wall of logos — which is why stopping
+     is an honest answer here and nothing has to be hidden. */
+  .ground-grain {
+    position: relative;
+    color: var(--color-text);
+  }
+
+  .ground-grain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    background: var(--color-canvas);
+  }
+
+  /* The tile is an inline data URI, not a fragment URL: `background-image:
+     url("#id")` is not paintable in any engine. `stitchTiles="stitch"` is what
+     keeps the 180px tile seamless when it repeats. */
+  /* The body's grain goes under every page ground. See the ladder. */
+  body.ground-grain::after {
+    z-index: -4;
+  }
+
+  .ground-grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    background-size: var(--grain-tile) var(--grain-tile);
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  }
+
+  /* -------------------------------------------------------------------------
+     THE DECK GROUND — Company Profile p-04, "The Problem", reproduced.
+
+     Not the flowing shader wearing these colours: the page's own ground, a
+     soft glow low and left over near-black navy, under grain. Every stop is
+     sampled from p-04 in TEXT-FREE regions (the plate is kept at
+     salvage/deck/), so this is the printed page rather than a mix to taste.
+
+     ONE DELIBERATE DEPARTURE. The page's glow peaks at #007dcc, luminance
+     0.1903, which is 4.37:1 against white — under the 4.5 floor. The deck
+     survives that because the glow sits in its empty left margin and every
+     line of its type is elsewhere; a web section has copy across the full
+     width, so the peak is capped at #00649f (0.1180). In isolation that is
+     6.21:1; MEASURED on the rendered section, with the grain on top and the
+     other stops under it, the tightest line comes out near 5:1. An earlier
+     cap of #0070b8 measured 4.56:1 rendered — passing, but close enough to
+     the floor that any later copy drifting into the glow would tip it.
+
+     WHITE COPY ONLY. --color-text-muted needs its ground under 0.0903 and
+     this one reaches 0.1505. Anything placed here must use --color-text.
+  ------------------------------------------------------------------------- */
+  .ground-deck {
+    position: relative;
+    color: var(--color-text);
+  }
+
+  .ground-deck::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    background-color: #01004c;
+    background-image:
+      radial-gradient(58% 62% at 21% 64%, #00649f 0%, rgba(0, 100, 159, 0) 70%),
+      radial-gradient(85% 95% at 30% 58%, #012acc 0%, rgba(1, 42, 204, 0) 66%),
+      radial-gradient(120% 130% at 8% 88%, #115bc3 0%, rgba(17, 91, 195, 0) 55%),
+      linear-gradient(135deg, #0529af 0%, #00104c 58%, #01004c 100%);
+  }
+
+  /* The deck reads as a printed piece because of the grain, not the
+     gradient — same tile as the other grounds, carried a little heavier. */
+  .ground-deck::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: calc(var(--grain-opacity) * 1.1);
+    background-size: var(--grain-tile) var(--grain-tile);
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  }
+
+  @media (prefers-contrast: more) {
+    .ground-deck::before {
+      background-image: none;
+      background-color: var(--color-canvas);
+    }
+    .ground-deck::after { opacity: 0; }
+  }
+
+  .ground-flat {
+    position: relative;
+    color: var(--color-ink);
+  }
+
+  .ground-flat::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    background: var(--color-surface);
+  }
+
+  /* A PALE BLUE SURFACE, for a section that presents one object on its
+     own and wants air around it rather than a card under it. The soft
+     centre lift is what keeps a near-flat tint from reading as a grey
+     box: the object sits in the lightest part of it.
+
+     IT IS A GROUND, NOT A BACKGROUND, and that is deliberate even
+     though the page using it carries no travelling mark today. A plain
+     `background` on the section would paint at z-index 0 and cover any
+     negative-z layer beneath it — the exact failure the ladder above
+     exists to prevent. Putting it on ::before at -3 means the section
+     stays correct if the mark is ever extended to this page.
+
+     Contrast on #e6ecfb: ink 13.7:1, ink-muted 5.9:1. Both clear. */
+  .ground-mist {
+    position: relative;
+    color: var(--color-ink);
+  }
+
+  .ground-mist::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    background-color: #e6ecfb;
+    background-image: radial-gradient(
+      62% 72% at 50% 38%,
+      #f5f8ff 0%,
+      rgba(245, 248, 255, 0) 72%
+    );
+  }
+
+  @media (prefers-contrast: more) {
+    /* The body's grain goes under every page ground. See the ladder. */
+  body.ground-grain::after {
+    z-index: -4;
+  }
+
+  .ground-grain::after { opacity: 0; }
+  }
+
+  /* ---------------------------------------------------------------------------
+     DEEP GROUND — the deck's own full-bleed blue (Company Profile pp.1, 4, 7, 10).
+
+     Sampled from p-04.png: a bright blue hotspot low and left (#1D50C7 /
+     #002CE8) falling to near-black navy at the corners (#00003E, #051849,
+     #000D60), under the same grain as .ground-grain. This is the "matte blue"
+     the deck leads with, and the reason flat #0325A8 reads thinner than the
+     printed piece.
+  --------------------------------------------------------------------------- */
+  /* THE BRIGHT STOPS ARE CAPPED, and the cap is computed, not chosen.
+     --color-text-muted (#BCC7F5, luminance 0.5813) needs its background at or
+     below 0.0903 to hold 4.5:1. The token is certified in tokens.css against
+     the FLAT canvas (0.0417); this gradient is a different, brighter ground and
+     was never re-certified against it. Its hotspot #1f54cc measures 0.1099 —
+     over the cap on its own, and the grain on top adds roughly another 0.026 —
+     which is why body copy in the 4D section measured 3.40:1.
+     #163c95 is 0.0557. The first attempt used #17409f (0.0635) on the theory
+     that the grain adds ~0.026; measured, it adds a little more and the
+     result landed at 4.45:1 — right idea, 0.05 short. The headroom now comes
+     from both sides: a darker stop AND less grain on this ground (0.95x
+     rather than 1.15x). Any future stop here must be computed the same way,
+     then MEASURED — the grain is not predictable enough to trust on paper. */
+  .ground-deep {
+    position: relative;
+    color: var(--color-text);
+  }
+
+  .ground-deep::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    background-color: #00093f;
+    background-image:
+      radial-gradient(70% 90% at 18% 62%, #163c95 0%, rgba(22, 60, 149, 0) 62%),
+      radial-gradient(90% 120% at 50% 45%, #0d2fb0 0%, rgba(13, 47, 176, 0) 58%),
+      radial-gradient(120% 140% at 85% 10%, #061a4c 0%, rgba(6, 26, 76, 0) 70%),
+      linear-gradient(160deg, #00003e 0%, #052a8c 45%, #000d60 100%);
+  }
+
+  .ground-deep::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: calc(var(--grain-opacity) * 0.95);
+    background-size: var(--grain-tile) var(--grain-tile);
+    background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  }
+
+  @media (prefers-contrast: more) {
+    .ground-deep::before {
+      background-image: none;
+      background-color: var(--color-canvas);
+    }
+    .ground-deep::after { opacity: 0; }
+  }
+}

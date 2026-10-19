@@ -1,0 +1,100 @@
+/* ---------------------------------------------------------------------------
+   DESIGN TOKENS — FROZEN
+   ---------------------------------------------------------------------------
+   TheWebxite revamp. Written once by /design-direction. Immutable thereafter.
+
+   Stage B may CONSUME these values. Stage B may NOT add a colour, a typeface, a
+   radius, a shadow or a spacing step. If a build appears to need a value that is
+   not here, that is a signal the direction was wrong -- stop and re-run
+   /design-direction, which re-triggers client approval. It is never a signal to
+   add a token.
+
+   Validate after any edit:  node scripts/validate-tokens.mjs ./tokens.css
+
+   Selections:
+     hero archetype   stacked-statement-hero
+     page archetype   sticky-column-narrative
+     typography       modern-grotesk (scale + rules) / Open Sauce One (brand face)
+     palette          client brand, ultramarine-civic supplying the structure
+     motion tier      2
+--------------------------------------------------------------------------- */
+
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/open-sauce-one@5/400.css');
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/open-sauce-one@5/500.css');
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/open-sauce-one@5/700.css');
+
+:root {
+  /* --- Colour ------------------------------------------------------------
+     Values are TheWebxite's own, sampled from Company Profile.pdf. The
+     ultramarine-civic palette supplies only the STRUCTURE: the brand blue is
+     committed to the page ground rather than kept in a logo and a button,
+     which is the arrangement the current site shares with every other agency.
+
+     One dominant, one cool neutral family, ONE accent used at most 3x per
+     page. Never pure #000000.                                             */
+  --color-canvas: #0325A8;                    /* brand deep blue, PDF p3/p5 - page ground */
+  --color-surface: #F3F2F0;                   /* brand off-white, PDF p2/p8 - text sections */
+  --color-text: #FFFFFF;                      /* on canvas .... 11.45:1 */
+  --color-text-muted: #BCC7F5;                /* on canvas ..... 6.88:1 */
+  --color-ink: #071238;                       /* on surface ... 16.28:1 */
+  --color-ink-muted: #4A5578;                 /* on surface .... 6.56:1 */
+  --color-accent: #8CDBFF;                    /* brand light blue, PDF p5/p7 - 7.47:1 on canvas */
+  --color-accent-wash: rgba(140, 219, 255, 0.14);
+  --color-hairline: rgba(255, 255, 255, 0.22);
+  --color-hairline-ink: rgba(7, 18, 56, 0.14);
+
+  /* Illustration only. #0074DD measures 2.48:1 against the canvas, so it may
+     never carry text or a border on the blue ground. It exists to separate the
+     four ecosystem layers on the light surface, exactly as PDF p6 uses it.  */
+  --color-blue-mid: #0074DD;
+
+  /* --- Typography --------------------------------------------------------
+     Single-family system per modern-grotesk. The pairing specifies Satoshi;
+     the client's own embedded face wins, by the same precedence rule that
+     gives brand colour priority over a library palette. Open Sauce One is
+     SIL OFL and carries Light/Regular/Medium/Bold - three weights used here.
+     Self-host these woff2 files at Stage B; the CDN is for the pitch page.  */
+  --font-display: 'Open Sauce One', system-ui, sans-serif;
+  --font-body: 'Open Sauce One', system-ui, sans-serif;
+
+  /* --- Type scale --------------------------------------------------------
+     112 / 14 = 8x, comfortably past the 6x floor. The hero alone spans
+     112 / 40 / 17, so the page demonstrates the ratio in its first screen. */
+  --step--1: 0.875rem;   /* 14px  labels, captions                          */
+  --step-0:  1.0625rem;  /* 17px  body                                      */
+  --step-1:  1.5rem;     /* 24px  lead paragraph                            */
+  --step-2:  2.5rem;     /* 40px  section heading                           */
+  --step-3:  4.5rem;     /* 72px  service rows                              */
+  --step-4:  7rem;       /* 112px display                                   */
+
+  /* --- Spacing ----------------------------------------------------------- */
+  --space-section: clamp(7.5rem, 12vw, 11rem);
+  --space-block: clamp(3rem, 5vw, 5rem);
+  --space-gutter: clamp(1.25rem, 4vw, 3rem);
+
+  /* --- Form --------------------------------------------------------------
+     Small on purpose. The current site's pill nav and rounded cards are the
+     stock component look the ruleset bans.                                 */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  /* --- Motion ------------------------------------------------------------
+     Tier 2: one pinned section (the ecosystem) and nothing else scrubbed.  */
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+  --duration-fast: 200ms;
+  --duration-base: 400ms;
+  --duration-slow: 900ms;
+  --motion-tier: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,29 @@
+# dependencies / build output
+node_modules/
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+next-env.d.ts
+playwright-report/
+test-results/
+
+# env files: only the example is committed
+.env*
+!.env.example
+
+# OS / editor
+.DS_Store
+.vscode/
+
+# working folders, not part of the site
+qa*/
+salvage/
+site-backup-*/
+.pdfpages/
+current-site/
+events/
+
+# large raw source files
+*.pdf
+*.xml

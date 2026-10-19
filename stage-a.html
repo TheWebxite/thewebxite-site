@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TheWebxite</title>
+
+<!--
+  STAGE A PITCH PAGE — TheWebxite revamp
+  --------------------------------------
+  Self-contained single file. Shown to confirm direction before Stage B.
+
+  hero archetype   stacked-statement-hero
+  page archetype   sticky-column-narrative
+  sections         single-statement · sticky-list-detail · numbered-steps-horizontal
+                   logo-marquee-restrained · full-bleed-statement · editorial-contact-block
+  typography       modern-grotesk rules / Open Sauce One face
+  palette          client brand, ultramarine-civic structure
+  motion           tier 2 — exactly one pinned column
+
+  Copy is TheWebxite's own, from Company Profile.pdf, cited per section.
+  Anything written rather than quoted is marked PLACEHOLDER.
+-->
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+/* ---------------------------------------------------------------------------
+   DESIGN TOKENS — FROZEN  (inlined verbatim from tokens.css)
+--------------------------------------------------------------------------- */
+
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/open-sauce-one@5/400.css');
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/open-sauce-one@5/500.css');
+@import url('https://cdn.jsdelivr.net/npm/@fontsource/open-sauce-one@5/700.css');
+
+:root {
+  --color-canvas: #0325A8;
+  --color-surface: #F3F2F0;
+  --color-text: #FFFFFF;
+  --color-text-muted: #BCC7F5;
+  --color-ink: #071238;
+  --color-ink-muted: #4A5578;
+  --color-accent: #8CDBFF;
+  --color-accent-wash: rgba(140, 219, 255, 0.14);
+  --color-hairline: rgba(255, 255, 255, 0.22);
+  --color-hairline-ink: rgba(7, 18, 56, 0.14);
+  --color-blue-mid: #0074DD;
+
+  --font-display: 'Open Sauce One', system-ui, sans-serif;
+  --font-body: 'Open Sauce One', system-ui, sans-serif;
+
+  --step--1: 0.875rem;
+  --step-0:  1.0625rem;
+  --step-1:  1.5rem;
+  --step-2:  2.5rem;
+  --step-3:  4.5rem;
+  --step-4:  7rem;
+
+  --space-section: clamp(7.5rem, 12vw, 11rem);
+  --space-block: clamp(3rem, 5vw, 5rem);
+  --space-gutter: clamp(1.25rem, 4vw, 3rem);
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+  --duration-fast: 200ms;
+  --duration-base: 400ms;
+  --duration-slow: 900ms;
+  --motion-tier: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+</style>
+
+<style>
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--color-canvas);
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: var(--step-0);
+    line-height: 1.65;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 0.94;
+    margin: 0;
+    text-wrap: balance;
+  }
+  p { margin: 0; max-width: 68ch; }
+  a { color: inherit; }
+  :where(a, button, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
+  }
+  .section { padding-block: var(--space-section); }
+  .container { margin-inline: auto; max-width: 90rem; padding-inline: var(--space-gutter); }
+  .bleed { margin-inline: calc(50% - 50vw); width: 100vw; }
+  .rule { background: var(--color-hairline); border: 0; height: 1px; margin: 0; }
+  .grid12 { display: grid; grid-template-columns: repeat(12, 1fr); gap: var(--space-gutter); }
+  .label {
+    font-size: var(--step--1); letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--color-text-muted); font-weight: 500;
+  }
+  .on-surface { background: var(--color-surface); color: var(--color-ink); }
+  .on-surface .label { color: var(--color-ink-muted); }
+
+  /* One text link, underlined on the offset — never a second button. */
+  .textlink {
+    display: inline-block; text-decoration: none;
+    padding-block: 0.75rem; min-height: 44px;
+    border-bottom: 1px solid var(--color-accent);
+    color: var(--color-accent);
+    transition: opacity var(--duration-fast) var(--ease-standard);
+  }
+  .textlink:hover { opacity: 0.72; }
+
+  /* Reveal — T1, once, per line. Nothing loops. */
+  .reveal { opacity: 0; transform: translateY(14px);
+            transition: opacity var(--duration-slow) var(--ease-standard),
+                        transform var(--duration-slow) var(--ease-standard); }
+  .reveal.is-in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+
+<body>
+<main class="overflow-x-hidden w-full max-w-full">
+
+  <!-- NAV ---------------------------------------------------------------
+       Static, not a sticky pill bar. The current site's rounded pill nav
+       with a dark active pill is the stock component look the ruleset
+       bans; a plain nav suits the archetype's register.               -->
+  <header class="container" style="padding-block: 2rem; display:flex; align-items:baseline; gap:2.5rem; flex-wrap:wrap;">
+    <a href="#" style="text-decoration:none; font-weight:700; font-size:var(--step-1); letter-spacing:-0.03em; line-height:1;">TheWebxite</a>
+    <nav style="display:flex; gap:2rem; font-size:var(--step-0);">
+      <a href="#work" style="text-decoration:none; color:var(--color-text-muted);">Work</a>
+      <a href="#stack" style="text-decoration:none; color:var(--color-text-muted);">Stack</a>
+      <a href="#how" style="text-decoration:none; color:var(--color-text-muted);">How we work</a>
+    </nav>
+    <a href="mailto:contact@thewebxite.com"
+       style="margin-left:auto; text-decoration:none; font-size:var(--step-0); display:inline-flex; align-items:center; min-height:44px;">contact@thewebxite.com</a>
+  </header>
+
+  <!-- HERO ---------------------------------------------------------------
+       selected archetype: stacked-statement-hero
+       Three lines, three genuinely different sizes (112 / 40 / 17).
+       Columns 1-8 of 12. The remaining four stay EMPTY — that emptiness
+       is load-bearing and must not be filled.
+       Copy: Company Profile.pdf p4 (claim + qualification).          -->
+  <section class="section container grid12" style="padding-block: clamp(5rem,10vw,9rem) var(--space-section);">
+    <div style="grid-column: 1 / span 8;">
+      <h1 class="reveal" style="font-size: clamp(3rem, 8.4vw, var(--step-4));">The tools exist.</h1>
+      <p class="reveal" style="font-size: clamp(1.5rem, 3vw, var(--step-2)); line-height:1.12; letter-spacing:-0.02em; margin-top: 1.25rem; max-width: 22ch; font-weight:500;">
+        They’re just not connected into one system.
+      </p>
+      <!-- PLACEHOLDER: both halves are the client's (p2 "Petaling Jaya-based
+           digital architect", p6 "one connected system"); the join is ours. -->
+      <p class="reveal" style="margin-top: 2.5rem; color: var(--color-text-muted); max-width: 56ch;">
+        TheWebxite is a Petaling Jaya digital architect. We build the brand, the
+        systems, the automation and the growth as one stack — not four suppliers.
+      </p>
+      <p class="reveal" style="margin-top: 2.5rem;">
+        <a class="textlink" href="#stack">See how the four layers fit together</a>
+      </p>
+    </div>
+    <!-- columns 9-12 intentionally empty -->
+  </section>
+
+  <!-- ABOUT --------------------------------------------------------------
+       selected section: single-statement
+       One paragraph at display scale, alone. No heading, no image, no link.
+       Copy: Company Profile.pdf p2, verbatim (36 words).             -->
+  <section class="container grid12" style="padding-block: clamp(11rem, 16vw, 15rem);">
+    <p class="reveal" style="grid-column: 2 / span 8; font-size: clamp(1.625rem, 3.6vw, 3.25rem); line-height:1.15; letter-spacing:-0.025em; max-width: none;">
+      We don’t just build websites; we engineer custom systems and AI-driven
+      solutions that automate your growth and simplify your management.
+    </p>
+  </section>
+
+  <!-- STACK — the page's ONE pinned section ------------------------------
+       selected archetype: sticky-column-narrative
+       selected section:   sticky-list-detail
+       Left column (1-5) pins and holds the four-layer ecosystem from p6.
+       Right column (7-12) scrolls the six solutions from p5. Column 6 stays
+       genuinely empty — no divider rule.
+       This is the page's deliberate grid break and its only T2 moment.  -->
+  <section id="stack" class="on-surface bleed">
+    <div class="container grid12 section" style="padding-block: clamp(7.5rem,12vw,11rem);">
+
+      <div id="stack-pin" style="grid-column: 1 / span 5;">
+        <h2 style="font-size: clamp(2rem, 4vw, var(--step-2)); max-width: 14ch;">
+          Every layer feeds the next.
+        </h2>
+        <p style="margin-top: 1.25rem; color: var(--color-ink-muted); font-size: var(--step-0); max-width: 34ch;">
+          No scattered tools. Brand on the front end, custom systems on the back
+          end, AI in the middle, growth on top.
+        </p>
+
+        <ol id="layers" style="list-style:none; margin: 2.5rem 0 0; padding: 0;">
+          <!-- Layer names are p6's. PLACEHOLDER: the one-line glosses beneath
+               each are written in the brand voice. -->
+          <li class="layer is-active" data-layer="brand" style="border-top:1px solid var(--color-hairline-ink); padding:1.1rem 0;">
+            <span class="layer-name" style="font-weight:700; font-size:var(--step-1); letter-spacing:-0.02em;">Build Brand</span>
+            <span style="display:block; font-size:var(--step--1); color:var(--color-ink-muted); margin-top:0.25rem;">Front end — how you are judged in the first seconds</span>
+          </li>
+          <li class="layer" data-layer="ops" style="border-top:1px solid var(--color-hairline-ink); padding:1.1rem 0;">
+            <span class="layer-name" style="font-weight:700; font-size:var(--step-1); letter-spacing:-0.02em;">Improve Operations</span>
+            <span style="display:block; font-size:var(--step--1); color:var(--color-ink-muted); margin-top:0.25rem;">Back end — the systems the front end runs on</span>
+          </li>
+          <li class="layer" data-layer="ai" style="border-top:1px solid var(--color-hairline-ink); padding:1.1rem 0;">
+            <span class="layer-name" style="font-weight:700; font-size:var(--step-1); letter-spacing:-0.02em;">Work Smarter</span>
+            <span style="display:block; font-size:var(--step--1); color:var(--color-ink-muted); margin-top:0.25rem;">Intelligence — the repetitive work stops being manual</span>
+          </li>
+          <li class="layer" data-layer="grow" style="border-top:1px solid var(--color-hairline-ink); border-bottom:1px solid var(--color-hairline-ink); padding:1.1rem 0;">
+            <span class="layer-name" style="font-weight:700; font-size:var(--step-1); letter-spacing:-0.02em;">Grow Faster</span>
+            <span style="display:block; font-size:var(--step--1); color:var(--color-ink-muted); margin-top:0.25rem;">Growth — and what it tells you to build next</span>
+          </li>
+        </ol>
+      </div>
+
+      <!-- column 6 deliberately empty -->
+
+      <div id="stack-detail" style="grid-column: 7 / span 6;">
+        <!-- Six solutions, p5 verbatim. Descriptions stay because
+             "Business Systems" and "Digital Transformation" do not explain
+             themselves — which is why full-bleed-rule-list was not used. -->
+        <article class="solution" data-layer="brand" style="padding-block: clamp(3rem,7vw,6rem); border-bottom:1px solid var(--color-hairline-ink);">
+          <h3 style="font-size: clamp(1.75rem, 3.4vw, var(--step-3)); line-height:0.98;">Digital Presence</h3>
+          <p style="margin-top:1rem; color:var(--color-ink-muted); font-size:var(--step-1); line-height:1.4;">Websites, e-commerce, and branding.</p>
+        </article>
+        <article class="solution" data-layer="grow" style="padding-block: clamp(3rem,7vw,6rem); border-bottom:1px solid var(--color-hairline-ink);">
+          <h3 style="font-size: clamp(1.75rem, 3.4vw, var(--step-3)); line-height:0.98;">Customer Growth</h3>
+          <p style="margin-top:1rem; color:var(--color-ink-muted); font-size:var(--step-1); line-height:1.4;">Digital marketing, SEO, and lead generation.</p>
+        </article>
+        <article class="solution" data-layer="ai" style="padding-block: clamp(3rem,7vw,6rem); border-bottom:1px solid var(--color-hairline-ink);">
+          <h3 style="font-size: clamp(1.75rem, 3.4vw, var(--step-3)); line-height:0.98;">AI &amp; Automation</h3>
+          <p style="margin-top:1rem; color:var(--color-ink-muted); font-size:var(--step-1); line-height:1.4;">AI assistants, automation, and workflow optimisation.</p>
+        </article>
+        <article class="solution" data-layer="ops" style="padding-block: clamp(3rem,7vw,6rem); border-bottom:1px solid var(--color-hairline-ink);">
+          <h3 style="font-size: clamp(1.75rem, 3.4vw, var(--step-3)); line-height:0.98;">Business Systems</h3>
+          <p style="margin-top:1rem; color:var(--color-ink-muted); font-size:var(--step-1); line-height:1.4;">Custom applications, portals, and integrations.</p>
+        </article>
+        <article class="solution" data-layer="grow" style="padding-block: clamp(3rem,7vw,6rem); border-bottom:1px solid var(--color-hairline-ink);">
+          <h3 style="font-size: clamp(1.75rem, 3.4vw, var(--step-3)); line-height:0.98;">Business Intelligence</h3>
+          <p style="margin-top:1rem; color:var(--color-ink-muted); font-size:var(--step-1); line-height:1.4;">Dashboards, analytics, and reporting.</p>
+        </article>
+        <article class="solution" data-layer="ops" style="padding-block: clamp(3rem,7vw,6rem);">
+          <h3 style="font-size: clamp(1.75rem, 3.4vw, var(--step-3)); line-height:0.98;">Digital Transformation</h3>
+          <p style="margin-top:1rem; color:var(--color-ink-muted); font-size:var(--step-1); line-height:1.4;">Technology strategies for long-term growth.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -------------------------------------------------------------
+       selected section: numbered-steps-horizontal
+       One hairline runs edge to edge behind the numerals. Widths unequal,
+       allocated by content length. No arrows — the rule replaces them.
+       Copy: Company Profile.pdf p7, verbatim. Numerals are the client's. -->
+  <section id="how" class="section container">
+    <h2 style="font-size: clamp(2rem, 4vw, var(--step-2)); max-width: 18ch;">Our 4D approach.</h2>
+
+    <div style="position:relative; margin-top: clamp(3rem,6vw,5rem);">
+      <hr class="rule bleed" style="position:absolute; top:1.6rem; left:0; right:0;" aria-hidden="true">
+      <ol class="steps" style="list-style:none; margin:0; padding:0; display:grid; grid-template-columns: 1.05fr 1.25fr 0.85fr 1.3fr; gap: var(--space-gutter); position:relative;">
+        <li>
+          <span class="num" style="display:inline-block; font-family:var(--font-display); font-weight:700; font-size:var(--step-2); line-height:1; letter-spacing:-0.03em; background:var(--color-canvas); padding-inline:1rem; margin-left:-1rem;">01</span>
+          <h3 style="font-size:var(--step-1); margin-top:1.25rem; line-height:1.2;">Discover</h3>
+          <p style="margin-top:0.5rem; color:var(--color-text-muted); font-size:var(--step-0);">Identify business challenges, opportunities, and objectives.</p>
+        </li>
+        <li>
+          <span class="num" style="display:inline-block; font-family:var(--font-display); font-weight:700; font-size:var(--step-2); line-height:1; letter-spacing:-0.03em; background:var(--color-canvas); padding-inline:1rem; margin-left:-1rem;">02</span>
+          <h3 style="font-size:var(--step-1); margin-top:1.25rem; line-height:1.2;">Design</h3>
+          <p style="margin-top:0.5rem; color:var(--color-text-muted); font-size:var(--step-0);">Define the strategy, solution architecture, and implementation roadmap.</p>
+        </li>
+        <li>
+          <span class="num" style="display:inline-block; font-family:var(--font-display); font-weight:700; font-size:var(--step-2); line-height:1; letter-spacing:-0.03em; background:var(--color-canvas); padding-inline:1rem; margin-left:-1rem;">03</span>
+          <h3 style="font-size:var(--step-1); margin-top:1.25rem; line-height:1.2;">Deliver</h3>
+          <p style="margin-top:0.5rem; color:var(--color-text-muted); font-size:var(--step-0);">Develop, test, and integrate the solution.</p>
+        </li>
+        <li>
+          <span class="num" style="display:inline-block; font-family:var(--font-display); font-weight:700; font-size:var(--step-2); line-height:1; letter-spacing:-0.03em; background:var(--color-canvas); padding-inline:1rem; margin-left:-1rem;">04</span>
+          <h3 style="font-size:var(--step-1); margin-top:1.25rem; line-height:1.2;">Drive</h3>
+          <p style="margin-top:0.5rem; color:var(--color-text-muted); font-size:var(--step-0);">Measure performance, optimise results, and support long-term growth.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- PROOF ---------------------------------------------------------------
+       selected section: logo-marquee-restrained
+       One row, monochrome, slow continuous movement, NO heading above it.
+       Only real clients — Company Profile.pdf p8. Rendered as wordmarks
+       because no vector logo files were supplied; real logos drop in
+       without a layout change.                                        -->
+  <section id="work" class="bleed" style="padding-block: var(--space-block); border-block:1px solid var(--color-hairline); overflow:hidden;">
+    <div class="marquee" style="display:flex; gap:6rem; width:max-content; will-change:transform;">
+      <div class="marquee-track" style="display:flex; gap:6rem; align-items:center;">
+        <span>Propel Global</span><span>Melaka International Trade Centre</span><span>TAR UMT</span>
+        <span>Fuji Bakery</span><span>Kingsman Realty</span><span>Nextloop</span>
+        <span>CYL</span><span>Lions International</span><span>DS</span>
+      </div>
+      <div class="marquee-track" aria-hidden="true" style="display:flex; gap:6rem; align-items:center;">
+        <span>Propel Global</span><span>Melaka International Trade Centre</span><span>TAR UMT</span>
+        <span>Fuji Bakery</span><span>Kingsman Realty</span><span>Nextloop</span>
+        <span>CYL</span><span>Lions International</span><span>DS</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLOSING -------------------------------------------------------------
+       selected section: full-bleed-statement
+       Full viewport height on the inverted ground — the one permitted
+       inversion. One line, one link, offset left. Nothing else.
+       Copy: Company Profile.pdf p9.                                   -->
+  <section class="on-surface bleed min-h-[100dvh]" style="display:flex; align-items:center;">
+    <div class="container" style="width:100%;">
+      <p style="font-size: clamp(2.125rem, 4.6vw, 5.25rem); line-height:1.04; letter-spacing:-0.03em; font-weight:700; font-family:var(--font-display); max-width:21ch;">
+        A real demo built around your business, not slides and promises.
+      </p>
+      <p style="margin-top:3.75rem;">
+        <a class="textlink" href="mailto:contact@thewebxite.com" style="color:var(--color-blue-mid); border-bottom-color:var(--color-blue-mid); font-size:var(--step-1);">Book a free consultation</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- FOOTER --------------------------------------------------------------
+       selected section: editorial-contact-block
+       Email set largest — it is what most visitors want. No form card,
+       no map, no icons beside details.                                -->
+  <footer class="container section" style="padding-block: clamp(7.5rem,12vw,11rem) var(--space-block);">
+    <div class="grid12">
+      <div style="grid-column: 1 / span 7;">
+        <a href="mailto:contact@thewebxite.com"
+           style="text-decoration:none; font-family:var(--font-display); font-weight:700; letter-spacing:-0.03em; font-size:clamp(1.5rem,3.6vw,var(--step-2)); line-height:1.05; display:inline-block; min-height:44px;">
+          contact@thewebxite.com
+        </a>
+      </div>
+
+      <div style="grid-column: 8 / span 4; display:grid; gap:2rem;">
+        <div>
+          <div class="label">Telephone</div>
+          <div style="margin-top:0.5rem; display:grid; gap:0.25rem;">
+            <a href="tel:+60177775971" style="text-decoration:none; display:inline-flex; align-items:center; min-height:44px;">+60 17 777 5971</a>
+            <a href="tel:+601125229855" style="text-decoration:none; display:inline-flex; align-items:center; min-height:44px;">+60 11 2522 9855</a>
+          </div>
+        </div>
+        <div>
+          <div class="label">Office</div>
+          <p style="margin-top:0.5rem; color:var(--color-text-muted);">Pusat Dagangan NZX<br>47301 Petaling Jaya, Selangor</p>
+        </div>
+        <div>
+          <div class="label">Instagram</div>
+          <a href="https://instagram.com/thewebxite" style="display:inline-flex; align-items:center; min-height:44px; margin-top:0.25rem;">@thewebxite</a>
+        </div>
+      </div>
+    </div>
+
+    <hr class="rule" style="margin-block: var(--space-block) 2rem;">
+    <p style="font-size:var(--step--1); color:var(--color-text-muted);">TheWebxite — Petaling Jaya, Malaysia</p>
+  </footer>
+
+</main>
+
+<style>
+  /* Marquee — restrained: one row, secondary colour, slow, no pause on hover. */
+  #work span {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: var(--step-1); letter-spacing: -0.02em;
+    color: var(--color-text-muted); white-space: nowrap;
+  }
+  @keyframes marquee-track { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }
+  .marquee { animation: marquee-track 46s linear infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee { animation: none; width: 100%; flex-wrap: wrap; gap: 2.5rem; }
+    .marquee-track[aria-hidden="true"] { display: none !important; }
+    .marquee-track { flex-wrap: wrap; gap: 2.5rem; }
+  }
+
+  /* Active ecosystem layer — instant, not transitioned. A fading highlight
+     reads as lag. This is one of the accent's three permitted uses. */
+  .layer { transition: none; }
+  .layer .layer-name { color: var(--color-ink-muted); }
+  .layer.is-active .layer-name {
+    color: var(--color-ink);
+    box-shadow: inset 0 -2px 0 0 var(--color-accent);
+  }
+
+  /* Asymmetric layouts collapse to one column below 768px. */
+  @media (max-width: 1023px) {
+    #stack-pin, #stack-detail { grid-column: 1 / -1 !important; }
+    #stack-pin { margin-bottom: var(--space-block); }
+  }
+  @media (max-width: 767px) {
+    .grid12 { grid-template-columns: 1fr; }
+    .container > .grid12 > * { grid-column: 1 / -1 !important; }
+    header { gap: 1.25rem 1.5rem; }
+    header nav { gap: 1.25rem; }
+    header > a[href^="mailto"] { margin-left: 0 !important; }
+
+    /* numbered-steps-horizontal, mobile rule: rotate to vertical. The rule
+       becomes a line down the left, numerals sit on it, content flows right. */
+    #how hr.bleed { display: none; }
+    #how .steps {
+      grid-template-columns: 1fr !important;
+      gap: 2.5rem !important;
+      position: relative;
+      padding-left: 4.25rem !important;
+    }
+    #how .steps::before {
+      content: ''; position: absolute; left: 1.4rem; top: 0.5rem; bottom: 0.5rem;
+      width: 1px; background: var(--color-hairline);
+    }
+    #how .steps li { position: relative; }
+    #how .steps .num {
+      position: absolute; left: -4.25rem !important; top: -0.15rem;
+      margin-left: 0 !important; padding-inline: 0 !important;
+      width: 2.8rem; text-align: center;
+      font-size: var(--step-1);
+    }
+    #how .steps h3 { margin-top: 0 !important; }
+  }
+</style>
+
+<script>
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* T1 — reveal once. IntersectionObserver, never a scroll listener. */
+  if (!reduced) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (!e.isIntersecting) return;
+        e.target.style.transitionDelay = `${Math.min(i, 3) * 80}ms`;
+        e.target.classList.add('is-in');
+        io.unobserve(e.target);
+      });
+    }, { rootMargin: '0px 0px -12% 0px' });
+    document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+  } else {
+    document.querySelectorAll('.reveal').forEach((el) => el.classList.add('is-in'));
+  }
+
+  /* T2 — the page's ONE pin. Left column holds; right column scrolls
+     natively and is never scrubbed. Disabled below 1024px and under
+     reduced motion, checked BEFORE the trigger is created. */
+  if (!reduced && window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+
+    ScrollTrigger.matchMedia({
+      '(min-width: 1024px)': function () {
+        ScrollTrigger.create({
+          trigger: '#stack-detail',
+          start: 'top top+=96',
+          end: 'bottom bottom-=96',
+          pin: '#stack-pin',
+          pinSpacing: false,
+        });
+
+        const layers = gsap.utils.toArray('.layer');
+        const setActive = (key) => {
+          layers.forEach((l) => l.classList.toggle('is-active', l.dataset.layer === key));
+        };
+
+        gsap.utils.toArray('.solution').forEach((el) => {
+          ScrollTrigger.create({
+            trigger: el,
+            start: 'top center',
+            end: 'bottom center',
+            onToggle: (self) => { if (self.isActive) setActive(el.dataset.layer); },
+          });
+        });
+      },
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{
+  "the-knights-atelier": {
+    "stage": "#412402",
+    "on": "light"
+  },
+  "torii-teppanyaki": {
+    "stage": "#a7191e",
+    "on": "light"
+  },
+  "propel-global": {
+    "stage": "#011973",
+    "on": "light"
+  },
+  "the-skin-suite": {
+    "stage": "#f57ab7",
+    "on": "ink"
+  },
+  "sandmerit": {
+    "stage": "#ecb025",
+    "on": "ink"
+  },
+  "mia": {
+    "stage": "#af0606",
+    "on": "light"
+  },
+  "the-knights-award": {
+    "stage": "#080808",
+    "on": "light"
+  },
+  "fuji-bakery": {
+    "stage": "#fef34a",
+    "on": "ink"
+  }
+}
