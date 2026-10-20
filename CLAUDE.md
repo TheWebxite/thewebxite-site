@@ -5,6 +5,7 @@
 - Brand: deep blue `#0325A8` ground, off-white `#F3F2F0` surface, light-blue accent `#8CDBFF`, ink `#071238`; Open Sauce One (self-hosted via @fontsource); W logo mark.
 - Repo (public): https://github.com/TheWebxite/thewebxite-site (repo root = this folder; git identity `TheWebxite <thewebxite.ai@gmail.com>`).
 - Vercel: project `thewebxite-site` (team thewebxiteai-6218s-projects), Root Directory `site`, every push to `main` deploys to production at https://thewebxite-site.vercel.app. The live thewebxite.com stays on the separate `thewebxite-revamp` project; don't move the domain unless Xin asks.
+- LIVE site code is a separate repo: TheWebxite/thewebxite-revamp (private), local clone `~/Desktop/thewebxite-revamp` (same `site/` layout). Pushing its `main` deploys thewebxite.com (Vercel project thewebxite-revamp). This folder (`TW-Website`) is the event-pass version on thewebxite-site.vercel.app; pieces are ported into the live repo on request.
 - Local run: `cd site && npm run build && npm run start -- -p 4917`.
 - Not in the repo (see root `.gitignore`): qa*/, salvage/, site-backup-*/, .pdfpages/, current-site/, events/ (raw photos), *.pdf (Company Profile), *.xml (WordPress export), .env* except .env.example. Backup before the event pass: `site-backup-2026-10-19/`.
 
@@ -23,6 +24,8 @@
 - `qa-2026-10-19/` → screenshots of menu, work stage/index and logo walls.
 
 ## Client preferences / rules
+- Live menu: keep the existing layout; hover previews of each page sit in the empty space beside the links (2026-10-20).
+- Home clientele wall shows logos in each brand's own colours (not monochrome). After the wall, keep the live sections (Process etc.), not the localhost ones.
 - Keep brand tokens, Open Sauce One, logo and the home page (light touches only).
 - Owner's name is Xin — never write "Yong".
 - Never invent results, stats, quotes or clients. Only list clients Xin gave (2026-10-19 list in `data/clientele.ts`). Project lines are factual, written from the live site.
@@ -44,6 +47,7 @@
 - Decide whether to keep the old /work/<category> pages (only web-design has entries).
 
 ## Change log
+- 2026-10-20 — LIVE (thewebxite-revamp e15c39e): menu hover page previews + stagger; home gets colour clientele/vendors wall, "One thing about us" manifesto and Mission/Vision halves; Range tab no longer overlaps the sub-line; first-visit preloader.
 - 2026-10-19 — Fixed .gitignore (folder rules now root-anchored) so /events page + photos are in the repo.
 - 2026-10-19 — Put on GitHub (public, TheWebxite/thewebxite-site) and Vercel (project thewebxite-site, root site/, auto-deploy from main); secrets scan clean, raw/working folders excluded.
 - 2026-10-19 — Event pass: new blueprint site-map menu (replaces overlay; CTA in bar); new /work page (featured device stage, filterable index, 18 projects captured live) + 7 new case studies; clientele wall + vendors row on Home/Work/About/Services; About (manifesto, mission/vision halves); services index hero mosaic + premium service detail template (layer stack object, 4D blocks, work strip, p9 steps); Events filmstrip + Instagram embeds; Contact and News heroes. Backup at `site-backup-2026-10-19/`.
